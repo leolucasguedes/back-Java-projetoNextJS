@@ -1,6 +1,6 @@
-package com.project.api.model;
+package com.api.project.model.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")

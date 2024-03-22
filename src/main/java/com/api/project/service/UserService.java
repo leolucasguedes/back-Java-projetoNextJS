@@ -1,7 +1,7 @@
-package com.project.api.service;
+package com.api.project.service;
 
-import com.project.api.controller.dto.UserDTO;
-import com.project.api.model.User;
+import com.api.project.model.dto.UserDTO;
+import com.api.project.model.entity.User;
 
 public interface UserService {
     User createUser(UserDTO userDTO);
