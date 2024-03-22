@@ -51,4 +51,18 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(existingUser);
     }
+
+    @Override
+    public User signIn(UserDTO userDTO) {
+        return userRepository.findByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        userRepository.delete(user);
+    }
 }

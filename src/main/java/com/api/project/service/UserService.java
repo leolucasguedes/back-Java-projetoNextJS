@@ -9,4 +9,9 @@ public interface UserService {
     User getUserById(Long userId);
 
     User updateUserProfile(Long userId, UserDTO userDTO);
+
+    User signIn(UserDTO userDTO);
+
+    void deleteUser(Long userId);
+
 }

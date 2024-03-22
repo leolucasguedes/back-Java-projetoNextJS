@@ -15,7 +15,6 @@ public class UserDTO {
     @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
     private String senha;
 
-    // Construtores
     public UserDTO() {
     }
 

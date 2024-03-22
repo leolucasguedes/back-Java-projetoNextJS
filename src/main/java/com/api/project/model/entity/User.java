@@ -14,9 +14,8 @@ public class User {
     private String email;
     private String senha;
 
-    // Construtores
     public User() {
-        // Construtor padrão necessário para JPA
+
     }
 
     public User(String nome, String email, String senha) {

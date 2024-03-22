@@ -9,15 +9,18 @@ import com.api.project.exceptions.UserAlreadyExistsException;
 import com.api.project.model.dto.UserDTO;
 import com.api.project.model.entity.User;
 import com.api.project.service.UserService;
+import com.api.project.security.JwtTokenProvider;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/signup")
@@ -29,6 +32,17 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<String> signIn(@RequestBody UserDTO userDTO) {
+        try {
+            User user = userService.signIn(userDTO);
+            String token = jwtTokenProvider.generateToken(user);
+            return ResponseEntity.ok(token);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
@@ -53,6 +67,16 @@ public class UserController {
             return ResponseEntity.notFound().build();
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @DeleteMapping("/profile/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.ok().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 }
