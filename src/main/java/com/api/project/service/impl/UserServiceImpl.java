@@ -2,23 +2,29 @@ package com.api.project.service.impl;
 
 import org.springframework.stereotype.Service;
 import com.api.project.model.dto.UserDTO;
+import com.api.project.model.dto.LoginDTO;
 import com.api.project.model.entity.User;
 import com.api.project.repository.UserRepository;
 import com.api.project.service.UserService;
 import com.api.project.exceptions.NotFoundException;
 import com.api.project.exceptions.UserAlreadyExistsException;
+import com.api.project.exceptions.UnauthorizedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
     @Override
     public User createUser(UserDTO userDTO) {
+        userDTO.setSenha(encoder.encode(userDTO.getSenha()));
         User newUser = new User(userDTO.getNome(),
                 userDTO.getEmail(),
                 userDTO.getSenha());
@@ -28,6 +34,18 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.save(newUser);
+    }
+
+    @Override
+    public User signIn(LoginDTO loginDTO) {
+        User user = userRepository.findByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (!encoder.matches(loginDTO.getSenha(), user.getSenha())) {
+            throw new UnauthorizedException("Password does not match");
+        }
+
+        return user;
     }
 
     @Override
@@ -50,12 +68,6 @@ public class UserServiceImpl implements UserService {
         existingUser.setSenha(userDTO.getSenha());
 
         return userRepository.save(existingUser);
-    }
-
-    @Override
-    public User signIn(UserDTO userDTO) {
-        return userRepository.findByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     @Override

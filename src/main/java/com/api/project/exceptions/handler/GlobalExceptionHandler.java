@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.api.project.exceptions.ExceptionResponse;
 import com.api.project.exceptions.NotFoundException;
 import com.api.project.exceptions.UserAlreadyExistsException;
+import com.api.project.exceptions.UnauthorizedException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,4 +22,11 @@ public class GlobalExceptionHandler {
         ExceptionResponse response = new ExceptionResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        ExceptionResponse response = new ExceptionResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
 }

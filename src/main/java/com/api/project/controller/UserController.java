@@ -6,21 +6,23 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.api.project.exceptions.NotFoundException;
 import com.api.project.exceptions.UserAlreadyExistsException;
+import com.api.project.exceptions.UnauthorizedException;
+import com.api.project.model.dto.LoginDTO;
 import com.api.project.model.dto.UserDTO;
 import com.api.project.model.entity.User;
 import com.api.project.service.UserService;
-import com.api.project.security.JwtTokenProvider;
+import com.api.project.security.TokenService;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("/signup")
@@ -36,13 +38,17 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signIn(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> signIn(@Valid @RequestBody LoginDTO loginDTO) {
         try {
-            User user = userService.signIn(userDTO);
-            String token = jwtTokenProvider.generateToken(user);
+            User user = userService.signIn(loginDTO);
+            String token = tokenService.generateToken(user);
             return ResponseEntity.ok(token);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 

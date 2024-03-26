@@ -1,6 +1,7 @@
 package com.api.project.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "users")
@@ -10,8 +11,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String nome;
+
+    @Email
+    @NotBlank
     private String email;
+
+    @NotBlank
     private String senha;
 
     public User() {
